@@ -1,6 +1,6 @@
 module github.com/mdayat/demi-masa-task-queue
 
-go 1.24.2
+go 1.23.8
 
 require (
 	github.com/goccy/go-json v0.10.5
