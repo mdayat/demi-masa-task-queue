@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/mdayat/demi-masa-task-queue/configs"
+	"github.com/mdayat/demi-masa-task-queue/internal/worker"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -29,6 +30,22 @@ func main() {
 	}
 	defer db.Conn.Close()
 
-	redis := configs.NewRedis(env.RedisURL)
+	redis, err := configs.NewRedis(env.RedisURL)
+	if err != nil {
+		logger.Fatal().Err(err).Send()
+	}
 	defer redis.Close()
+
+	asynqClient := configs.NewAsynqClient(redis)
+	defer asynqClient.Close()
+
+	configs := configs.NewConfigs(env, db, redis, asynqClient)
+	server, mux, err := worker.NewWorkerServer(configs)
+	if err != nil {
+		logger.Fatal().Err(err).Send()
+	}
+
+	if err := server.Run(mux); err != nil {
+		logger.Fatal().Err(err).Send()
+	}
 }
