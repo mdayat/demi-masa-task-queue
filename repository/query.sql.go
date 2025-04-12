@@ -6,6 +6,8 @@
 package repository
 
 import (
+	"context"
+
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -16,4 +18,37 @@ type InsertUserPrayersParams struct {
 	Year   int16       `json:"year"`
 	Month  int16       `json:"month"`
 	Day    int16       `json:"day"`
+}
+
+const selectUsers = `-- name: SelectUsers :many
+SELECT id, email, password, name, coordinates, city, timezone, created_at FROM "user"
+`
+
+func (q *Queries) SelectUsers(ctx context.Context) ([]User, error) {
+	rows, err := q.db.Query(ctx, selectUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Email,
+			&i.Password,
+			&i.Name,
+			&i.Coordinates,
+			&i.City,
+			&i.Timezone,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
