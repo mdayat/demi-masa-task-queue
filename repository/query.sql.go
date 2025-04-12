@@ -52,3 +52,19 @@ func (q *Queries) SelectUsers(ctx context.Context) ([]User, error) {
 	}
 	return items, nil
 }
+
+const updateUncheckedPrayer = `-- name: UpdateUncheckedPrayer :exec
+UPDATE prayer SET status = 'missed'
+WHERE status = 'pending' AND day <= $1 AND month = $2 AND year = $3
+`
+
+type UpdateUncheckedPrayerParams struct {
+	Day   int16 `json:"day"`
+	Month int16 `json:"month"`
+	Year  int16 `json:"year"`
+}
+
+func (q *Queries) UpdateUncheckedPrayer(ctx context.Context, arg UpdateUncheckedPrayerParams) error {
+	_, err := q.db.Exec(ctx, updateUncheckedPrayer, arg.Day, arg.Month, arg.Year)
+	return err
+}

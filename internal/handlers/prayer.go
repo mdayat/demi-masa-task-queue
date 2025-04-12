@@ -103,6 +103,19 @@ func (p prayer) PopulatePrayerSchedule(ctx context.Context, _ *asynq.Task) error
 	return nil
 }
 
-func (p prayer) UpdateUncheckedPrayer(ctx context.Context, task *asynq.Task) error {
+func (p prayer) UpdateUncheckedPrayer(ctx context.Context, _ *asynq.Task) error {
+	now := time.Now()
+	lastTwoDays := now.AddDate(0, 0, -2)
+
+	err := p.configs.Db.Queries.UpdateUncheckedPrayer(ctx, repository.UpdateUncheckedPrayerParams{
+		Day:   int16(lastTwoDays.Day()),
+		Month: int16(lastTwoDays.Month()),
+		Year:  int16(lastTwoDays.Year()),
+	})
+
+	if err != nil {
+		return fmt.Errorf("failed to update unchecked prayer to missed: %w", err)
+	}
+
 	return nil
 }
