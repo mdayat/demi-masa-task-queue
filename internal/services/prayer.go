@@ -9,6 +9,11 @@ import (
 	"github.com/mdayat/demi-masa-task-queue/configs"
 )
 
+const (
+	PopulatePrayerScheduleType = "prayer:populate"
+	UpdateUncheckedPrayerType  = "prayer:update"
+)
+
 type PrayerServicer interface {
 	EnqueuePopulatePrayerSchedule(pattern string, payload interface{}) (*asynq.TaskInfo, error)
 	EnqueueUpdateUncheckedPrayer(pattern string, payload interface{}) (*asynq.TaskInfo, error)

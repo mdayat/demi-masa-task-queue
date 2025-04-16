@@ -25,19 +25,19 @@ func NewWorkerServer(configs configs.Configs) (*asynq.Server, *asynq.ServeMux, e
 	mux.Use(middleware.Logger)
 
 	prayerService := services.NewPrayerService(configs)
-	_, err := prayerService.EnqueuePopulatePrayerSchedule(handlers.PopulatePrayerScheduleType, nil)
+	_, err := prayerService.EnqueuePopulatePrayerSchedule(services.PopulatePrayerScheduleType, nil)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to enqueue %s: %w", handlers.PopulatePrayerScheduleType, err)
+		return nil, nil, fmt.Errorf("failed to enqueue %s: %w", services.PopulatePrayerScheduleType, err)
 	}
 
-	_, err = prayerService.EnqueueUpdateUncheckedPrayer(handlers.UpdateUncheckedPrayerType, nil)
+	_, err = prayerService.EnqueueUpdateUncheckedPrayer(services.UpdateUncheckedPrayerType, nil)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to enqueue %s: %w", handlers.UpdateUncheckedPrayerType, err)
+		return nil, nil, fmt.Errorf("failed to enqueue %s: %w", services.UpdateUncheckedPrayerType, err)
 	}
 
 	prayerHandler := handlers.NewPrayerHandler(configs, prayerService)
-	mux.HandleFunc(handlers.PopulatePrayerScheduleType, prayerHandler.PopulatePrayerSchedule)
-	mux.HandleFunc(handlers.UpdateUncheckedPrayerType, prayerHandler.UpdateUncheckedPrayer)
+	mux.HandleFunc(services.PopulatePrayerScheduleType, prayerHandler.PopulatePrayerSchedule)
+	mux.HandleFunc(services.UpdateUncheckedPrayerType, prayerHandler.UpdateUncheckedPrayer)
 
 	return server, mux, nil
 }

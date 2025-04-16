@@ -18,11 +18,6 @@ type PrayerHandler interface {
 	UpdateUncheckedPrayer(ctx context.Context, task *asynq.Task) error
 }
 
-const (
-	PopulatePrayerScheduleType = "prayer:populate"
-	UpdateUncheckedPrayerType  = "prayer:update"
-)
-
 type prayer struct {
 	configs configs.Configs
 	service services.PrayerServicer
@@ -100,6 +95,11 @@ func (p prayer) PopulatePrayerSchedule(ctx context.Context, _ *asynq.Task) error
 		}
 	}
 
+	_, err = p.service.EnqueuePopulatePrayerSchedule(services.PopulatePrayerScheduleType, nil)
+	if err != nil {
+		return fmt.Errorf("failed to enqueue %s: %w", services.PopulatePrayerScheduleType, err)
+	}
+
 	return nil
 }
 
@@ -115,6 +115,11 @@ func (p prayer) UpdateUncheckedPrayer(ctx context.Context, _ *asynq.Task) error 
 
 	if err != nil {
 		return fmt.Errorf("failed to update unchecked prayer to missed: %w", err)
+	}
+
+	_, err = p.service.EnqueueUpdateUncheckedPrayer(services.UpdateUncheckedPrayerType, nil)
+	if err != nil {
+		return fmt.Errorf("failed to enqueue %s: %w", services.UpdateUncheckedPrayerType, err)
 	}
 
 	return nil
